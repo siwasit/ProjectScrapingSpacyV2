@@ -56,12 +56,15 @@ def classify_sentence_structure(sentence):
     cconj = []
     FANBOYS = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so']
     for token in (doc): 
-        if token.dep_ == 'conj' and token.head.dep_ == 'ROOT' : #and 'poss' not in [i.dep_ for i in token.children]
+        if token.dep_ == 'conj' and token.head.dep_ == 'ROOT': #and 'poss' not in [i.dep_ for i in token.children]
+            # print(token.pos_, token.head.pos_, token.pos_ == 'NOUN')
+            if token.pos_ == 'NOUN' and token.pos_ != token.head.pos_:
+                continue
             cconj.append(token)
         elif token.dep_ == 'conj' and (token.pos_ == token.head.pos_):
-            if is_contained_in(FANBOYS, [word for word in token.head.children]):
+            if is_contained_in(FANBOYS, [word.text for word in token.head.children]):
                 cconj.append(token)
-        # print(token, token.pos_, token.head.dep_)
+        # print(token, [word for word in token.head.children], is_contained_in(FANBOYS, [word for word in token.head.children]))
 
     # print(marks, cconj)
     if marks != [] and cconj != []:
@@ -130,19 +133,37 @@ def compound_sentence_extracting(sentence): #ประเด็นคือป�
     # clauses = re.split(rf'\\s*\\b({conj_pattern})\\b\\s*', compound_sentence)
     # clauses += (re.split(rf'\s*\b{str(cc)}\b\s*', compound_sentence))
     
-    filtered_sentences = [sentence for sentence in clauses if sentence.lower() not in cconj]
+    filtered_sentences = []
+    for sentence in clauses:
+        # print(sentence)
+        if ',' in sentence and len(sentence) == 1:
+            filtered_sentences += sentence.split(',')
+            continue
+        if sentence.lower() not in cconj:
+            filtered_sentences.append(sentence)
+        # elif ',' in sentence:
+        #     print(sentence)
     # print(filtered_sentences, cconj)
     share_sp = ['', '', '']
+    case_n_and_n = ['', '', '']
+    # print(filtered_sentences, cconj)
     for sent in filtered_sentences:
 
         if 'nsubj' in [token.dep_ for token in nlp(sent)] or 'nsubjpass' in [token.dep_ for token in nlp(sent)]:
             # print(spo_extract)
             spo_extract.append(simple_sentence_extracting(sent))
             share_sp[0], share_sp[1] = spo_extract[-1][0], spo_extract[-1][1]
+            case_n_and_n[1], case_n_and_n[2] = spo_extract[-1][1], spo_extract[-1][2]
         elif 'nsubj' not in [token.dep_ for token in nlp(sent)] and 'nsubjpass' not in [token.dep_ for token in nlp(sent)]:
             share_sp[2] = sent
             spo_extract.append(simple_sentence_extracting(' '.join(share_sp)))
             # share_sp = ['', '']
 
+    # print(case_n_and_n)
+    for i, spo in enumerate(spo_extract): # case John and Leyla is a farmer but what about John, Leyla and davis? 
+        if len(spo[0]) == 0:
+            case_n_and_n[0] = spo[1]
+            spo_extract[i] = simple_sentence_extracting(' '.join(case_n_and_n))
+    
     #กรณีที่เป็น cconj ของตัวอื่นที่ไม่ใช่ root เรา Recursive แม่ม
     return spo_extract
