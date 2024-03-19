@@ -1,6 +1,9 @@
 import re, spacy
 from spacy import displacy
 
+def is_contained_in(a, b):
+    return any(elem in b for elem in a)
+
 def sep_sentence(compound_sentence, cconj):
     clauses = (re.split(rf'\s*\b({'|'.join(cconj)})\b\s*', compound_sentence))
     result = []
@@ -37,23 +40,27 @@ def classify_sentence_structure(sentence):
     # marks = [token.dep_ for token in doc if token.dep_ == 'mark' or token.pos_ == 'SCONJ' or (token.dep_ == 'pcomp' and token.head in verb) or (token.dep_ == 'conj' and token.head.dep_ == 'ROOT' and 'poss' in [i.dep_ for i in token.children])]
     marks = []
     for token in doc:
-        
+        # print(verb, token.head)
         if token.dep_ == 'mark' or token.pos_ == 'SCONJ':
             marks.append(token.dep_)
-        elif token.dep_ == 'pcomp' and token.head in verb:
+        elif token.dep_ in ['pcomp'] and token.head in verb:
             marks.append(token.dep_)
         elif token.dep_ == 'conj' and token.head.dep_ == 'ROOT':
             for i in token.children:
                 if i.dep_ == 'poss':
                     marks.append(token.dep_)
                     break
+        elif token.dep_ == 'ccomp':
+            marks.append(token.dep_)
 
     cconj = []
+    FANBOYS = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so']
     for token in (doc): 
         if token.dep_ == 'conj' and token.head.dep_ == 'ROOT' : #and 'poss' not in [i.dep_ for i in token.children]
             cconj.append(token)
         elif token.dep_ == 'conj' and (token.pos_ == token.head.pos_):
-            cconj.append(token)
+            if is_contained_in(FANBOYS, [word for word in token.head.children]):
+                cconj.append(token)
         # print(token, token.pos_, token.head.dep_)
 
     # print(marks, cconj)

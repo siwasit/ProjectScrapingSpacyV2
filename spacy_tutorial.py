@@ -1,22 +1,9 @@
-import re
+def is_contained_in(a, b):
+    return any(elem in b for elem in a)
 
-# compound_sentence = 'The cat sat on the mat, but it soon got bored and wandered off.'
-# cconj = ['but', 'and']
+# Example usage:
+FANBOYS = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so']
+list_b = ['a', 'staycation', 'instead', 'of', 's']
 
-def sep_sentence(compound_sentence, cconj):
-    clauses = (re.split(rf'\s*\b({'|'.join(cconj)})\b\s*', compound_sentence))
-    result = []
-    for clause in clauses:
-        if any(conj in clause for conj in cconj):
-            sub_clauses = []
-            while any(conj in clause for conj in cconj):
-                sub_clause = clause.strip()
-                sub_clauses.append(sub_clause)
-                clause = ' '.join(sub_clause.split()[1:])
-            result.extend(sub_clauses)
-        else:
-            result.append(clause.strip())
-    return result
-
-# clauses = sep_sentence(compound_sentence, cconj)
-# print(clauses)
+result = is_contained_in(FANBOYS, list_b)
+print(result)  # Output: True
