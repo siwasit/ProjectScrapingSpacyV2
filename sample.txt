@@ -1,0 +1,285 @@
+sentences2 = {
+    "sentence_1": "Joachim Peiper (30 January 1915 – 14 July 1976) was a German Schutzstaffel (SS) officer and war criminal convicted for the Malmedy massacre of U.S. Army prisoners of war (POWs)",
+    "sentence_2": "During the Second World War in Europe, Peiper served as personal adjutant to Heinrich Himmler, leader of the SS, and as a tank commander in the Waffen-SS",
+    "sentence_3": "German historian Jens Westemeier writes that Peiper personified Nazi ideology, as a purportedly ruthless glory-hound commander who was indifferent to the combat casualties of Battle Group Peiper, and who encouraged, expected, and tolerated war crimes by his Waffen-SS soldiers",
+    "sentence_4": "As adjutant to Himmler, Peiper witnessed the SS implement the Holocaust with ethnic cleansing and genocide of Jews in Eastern Europe; facts that he obfuscated and denied in the post-War period",
+    "sentence_5": "As a tank commander, Peiper served in the 1st SS Panzer Division Leibstandarte SS Adolf Hitler (LSSAH) in the Eastern Front and in the Western Front, first as a battalion commander and then as a regimental commander",
+    "sentence_6": "Peiper fought in the Third Battle of Kharkov and in the Battle of the Bulge, from which battles his eponymous battle group – Kampfgruppe Peiper – became notorious for committing war crimes against civilians and PoWs",
+    "sentence_7": "In the Malmedy Massacre Trial, the U.S. military tribunal established Peiper's command responsibility for the Malmedy massacre (1944) and sentenced him to death, which later was commuted to life in prison, then 35 years",
+    "sentence_8": "In Italy, Peiper was accused of having committed the Boves massacre (1943); that investigation ended for lack of war-crime evidence that Peiper ordered the summary killing of Italian civilians",
+    "sentence_9": "Upon release from prison, Peiper worked for the Porsche and Volkswagen automobile companies and later moved to France, where he worked as a freelance translator",
+    "sentence_10": "Throughout his post-war life, Peiper was very active in the social network of ex-SS men centred upon the right-wing organisation HIAG (Mutual Aid Association of Former Members of the Waffen-SS)",
+    "sentence_11": "In 1976, Peiper was murdered in France when anti-Nazis set his house on fire after the publication of his identity as a Waffen-SS war criminal",
+    # "sentence_12": "He worked as a mechanic before joining the army",
+    # "sentence_12": "It is not that I think any name, how great soever, set at the beginning of a book, will be able to cover the faults that are to be found in it."
+}
+
+simple_sentence = {
+    "sentence_1": "Joachim Peiper was born on January 30, 1915",
+    "sentence_2": "During World War II, Peiper served as an officer in the Waffen-SS",
+    "sentence_3": "Peiper was involved in the Malmedy massacre",
+    "sentence_4": "He was convicted of war crimes for his role in the massacre",
+    "sentence_5": "Peiper's actions during the war were controversial",
+    "sentence_6": "After the war, Peiper faced trial for his actions",
+    "sentence_7": "Peiper denied responsibility for the crimes he was accused of",
+    "sentence_8": "He was sentenced to prison for his involvement in the war crimes",
+    "sentence_9": "Peiper's post-war life was marked by controversy",
+    "sentence_10": "In 1976, Peiper was killed in France",
+    "sentence_11": "Mentha is a genus of flowering plants in the mint family",
+    "sentence_12": "The mentha plant has a strong, refreshing aroma",
+    "sentence_13": "Mentha leaves are often used to flavor food and drinks",
+    "sentence_14": "Peppermint is a type of mentha known for its cooling effect",
+    "sentence_15": "Mentha oil is extracted from the leaves of the mentha plant",
+    "sentence_16": "Mentha tea is a popular herbal beverage enjoyed for its soothing properties",
+    "sentence_17": "Mentha cultivation requires moist soil and plenty of sunlight",
+    "sentence_18": "Mentha can be grown in gardens or pots for easy access",
+    "sentence_19": "Mentha products are widely used in the pharmaceutical and food industries",
+    "sentence_20": "Mentha essential oil is used in aromatherapy for its invigorating scent"
+}
+
+germany_sentences = {
+    "sentence_1": "Germany is known for its efficient public transportation system.",
+    "sentence_2": "Berlin, the capital of Germany, is a vibrant and diverse city.",
+    "sentence_3": "The German economy is one of the strongest in Europe.",
+    "sentence_4": "Oktoberfest is a famous annual event held in Munich, Germany.",
+    "sentence_5": "German cuisine is renowned for its sausages and beer.",
+    "sentence_6": "The autobahn is a famous highway system in Germany.",
+    "sentence_7": "The German education system is highly regarded worldwide.",
+    "sentence_8": "The Black Forest is a picturesque region in southwestern Germany.",
+    "sentence_9": "Angela Merkel served as the Chancellor of Germany for 16 years.",
+    "sentence_10": "The Berlin Wall divided East and West Germany until 1989.",
+    "sentence_11": "BMW, Mercedes-Benz, and Volkswagen are leading German car manufacturers.",
+    "sentence_12": "The Rhine River is one of the longest rivers in Germany.",
+    "sentence_13": "The Brandenburg Gate is an iconic landmark in Berlin, Germany.",
+    "sentence_14": "The German language is spoken by over 100 million people worldwide.",
+    "sentence_15": "The Bundesliga is the top professional football league in Germany.",
+    "sentence_16": "Oktoberfest attracts millions of visitors to Germany each year.",
+    "sentence_17": "The German healthcare system provides comprehensive coverage to its citizens.",
+    "sentence_18": "The Harz Mountains offer stunning scenery and outdoor activities in Germany.",
+    "sentence_19": "The German flag consists of three horizontal stripes: black, red, and gold.",
+    "sentence_20": "The Cologne Cathedral is a UNESCO World Heritage Site located in Germany."
+}
+
+
+subject, predicate, object = {}, {}, {}
+    
+    nsubj_num = 0
+    verb_num = 0 
+    obj_head, obj_num = [], 0
+    for token in doc:
+        if token.text == ',':
+            continue  
+
+        if token.dep_ == 'ROOT':
+            predicate[f'compound_{verb_num}'] = token.text
+            for i, conj in enumerate(token.conjuncts):
+                verb_num += 1
+                predicate[f'compound_{verb_num}'] = conj.text
+        # if token.dep_ == 'conj':
+            # anot_sentence = [word.text for word in token.subtree]
+            # print(anot_sentence)
+            # print([word for word in sentence_extract if word not in anot_sentence])
+        elif token.dep_ == 'nsubj' or token.dep_ == 'nsubjpass':
+            if len([word for word in token.ancestors]) == 1:
+                subject[f'compound_{nsubj_num}'] = ' '.join([word.text for word in token.subtree])
+            else:
+                nsubj_num += 1
+                subject[f'compound_{nsubj_num}'] = ' '.join([word.text for word in token.subtree])
+        elif str(token.head) in [value for value in predicate.values()] and token.dep_ not in ['cc', 'npadvmod', 'conj', 'aux']:
+            condition = token.head.text in obj_head
+            obj_head.append(token.head.text)
+            if not condition:
+                object[f'compound_{obj_num}'] = ' '.join([word.text for word in token.subtree])
+                obj_num += 1
+                # print(condition)
+                # print('token')
+            else:
+                # print(token)
+                # print(condition)
+                obj_num -= 1
+                object[f'compound_{obj_num}'] += ' ' + ' '.join([word.text for word in token.subtree])
+
+    # print(subject, predicate, object)
+
+    spo_list = []
+
+    # Iterate over the keys in the dictionaries
+    for key in subject.keys():
+        # Extract values for each key from all dictionaries
+        s = subject[key]
+        p = predicate[key]
+        if f'{key}' in object:
+            o = object[key]
+            spo_list.append([s, p, o])
+        else:
+            spo_list.append([s, p])
+
+        # Append the values as a list [s, p, o] to the result list
+
+    print(spo_list)    
+
+
+def extract_spo_serial(sentence_dict):
+    spo_list = []
+    # simple_classified, complex_classified  = [], []
+    i = 1
+    for key, value in sentence_dict.items():
+        condition, sentence = classify_sentence_structure(value)
+        if condition == 'simple_sentence':
+            print(i, condition)
+            # simple_classified.append(sentence)
+            spo_list.append(simple_sentence_extracting(sentence))
+        elif condition == 'compound_sentence':
+            print(i, condition)
+            # complex_classified.append(sentence)
+            spo_list += compound_sentence_extracting(sentence)
+        i += 1
+        # elif condition == 'complex_sentence':
+        #     print(key, condition)
+        #     # complex_sentence_extracting(sentence)
+        # elif condition == 'compound_complex_sentence':
+        #     print(key, condition)
+            # compound_complex_sentence_extracting(sentence)
+    # simple_extraction_results = process_sentences(simple_classified, partial(simple_sentence_extracting))
+    # compound_extraction_results = process_sentences(complex_classified, partial(compound_sentence_extracting))
+    # for spo in spo_list:  
+    #     print(spo)
+   
+    return spo_list
+
+cc_sentences = {
+    # "sentence_1": "She went to the gym, but she forgot her water bottle.",
+    # "sentence_2": "He loves to cook, yet he hates doing the dishes afterward.",
+    # "sentence_3": "They planned to go hiking, or they could have gone to the beach instead.",
+    # "sentence_4_new conflict": "The party was loud, so they decided to leave early.", #เข้า simple ได้ แต่แปลออกมาไม่มี context เลย
+    # "sentence_5": "She wants to travel the world, nor does she want to settle down in one place.",
+    # "sentence_6": "He finished his homework, and then he went out to play with his friends.",
+    # "sentence_7": "The movie was long, yet it held their attention until the very end.",
+    # "sentence_8": "She bought a new dress, but she forgot to buy shoes to match.",
+    # "sentence_9": "He is allergic to peanuts, so he always checks food labels before eating.",
+    # "sentence_10": "They were tired after the hike, yet they felt accomplished."
+}
+
+# def classify_sentence_structure(sentence):
+#     # Perform part-of-speech tagging
+#     cleaned_sentence = re.sub(r'\([^)]*\)', '', sentence)
+
+#     # print(cleaned_sentence)
+#     nlp = spacy.load("en_core_web_sm")
+#     doc = nlp(cleaned_sentence)
+
+#     result = ''
+
+#     verb_index = []
+#     for i, token in enumerate(doc):
+#         if token.dep_ == 'ROOT':
+#             # verb_index.append(token)
+#             verb_index.append(i)
+#             verb_index += [i for i, word in enumerate(token.children) if word in [j for j in token.conjuncts]]
+#     verb = [doc[index] for index in verb_index]
+
+#     # marks = [token.dep_ for token in doc if token.dep_ == 'mark' or token.pos_ == 'SCONJ' or (token.dep_ == 'pcomp' and token.head in verb) or (token.dep_ == 'conj' and token.head.dep_ == 'ROOT' and 'poss' in [i.dep_ for i in token.children])]
+#     marks = []
+#     for token in doc:
+        
+#         if token.dep_ == 'mark' or token.pos_ == 'SCONJ':
+#             marks.append(token.dep_)
+#         elif token.dep_ == 'pcomp' and token.head in verb:
+#             marks.append(token.dep_)
+#         elif token.dep_ == 'conj' and token.head.dep_ == 'ROOT':
+#             for i in token.children:
+#                 if i.dep_ == 'poss':
+#                     marks.append(token.dep_)
+#                     break
+
+#     cconj = []
+#     for token in (doc): 
+#         if token.dep_ == 'conj' and token.head.dep_ == 'ROOT' : #and 'poss' not in [i.dep_ for i in token.children]
+#             cconj.append(token)
+#         elif token.dep_ == 'conj' and (token.pos_ == token.head.pos_):
+#             cconj.append(token)
+#         # print(token, token.pos_, token.head.dep_)
+
+#     # print(marks, cconj)
+#     if marks != [] and cconj != []:
+#         result = 'compound_complex_sentence'
+#     elif marks != [] or 'pcomp' in marks and cconj == []:
+#         result = 'complex_sentence'
+#     elif marks == [] and cconj != [] :## มาต่อตรงนี้นะ ไม่ไหวละ poss กับ cc ตัวก่อนหน้า
+#         # print('poss' , [doc[index].dep_ for index in cconj])
+#         result = 'compound_sentence'
+#     elif marks == [] and cconj == []:
+#         result = 'simple_sentence' #
+
+#     html_content = displacy.render(doc, style="dep", options={'distance': 120}, page=True)
+#     with open('dependency_visualization.html', "w", encoding="utf-8") as file:
+#         file.write(html_content)
+
+#     return result, cleaned_sentence
+#     # return marks, cconj
+
+# def simple_sentence_extracting(sentence): #วิธีนี้ต้อง clean จุดออก
+#     nlp = spacy.load("en_core_web_sm")
+#     doc = nlp(sentence)
+#     subject, predicate, object = '', '', ''
+#     for i, token in enumerate(doc):
+#         if token.dep_ == 'nsubj' or token.dep_ == 'nsubjpass':
+#             subject = [str(word.text) for word in doc[i].subtree]
+#         elif token.dep_ == 'ROOT':
+            
+#             predicate = token.text
+#         elif token.dep_ in ['pobj', 'dobj'] and [word.text for word in token.ancestors] == [predicate]:
+#             object = [str(word.text) for word in doc[i].subtree]
+
+#         elif [word.text for word in token.ancestors] == [predicate] and token.dep_ not in ['pcomp', 'npadvmod']: #npadvmod ไว้ขยายคำนาม advmod ไว้ขยาย verb
+#             if object != '':
+#                 object += [str(word.text) for word in doc[i].subtree]
+#             else:
+#                 object = [str(word.text) for word in doc[i].subtree]
+        
+#         object_phrase = ' '.join(list(object))
+#         subject_phrase = ' '.join(subject)
+
+#     # print(f'{subject_phrase =}, {predicate =}, {object_phrase =}')
+
+#     return [subject_phrase, predicate, object_phrase]
+
+# def compound_sentence_extracting(sentence): #ประเด็นคือประโยคที่ต่อ conj ด้วย verb ยังต้องการ subject ดังนั้นใส่ให้มันด้วย
+#     nlp = spacy.load("en_core_web_sm")
+#     doc = nlp(sentence)
+#     compound_sentence = sentence
+#     spo_extract = []
+#     # print(compound_sentence)
+#     cconj = [cconj.text for cconj in doc if cconj.dep_ == 'cc']
+#     conj_pattern = '|'.join(cconj)
+#     # cc = "or"
+#     # Split the compound sentence into clauses using the conj_pattern
+#     clauses = []
+#     if len(cconj) > 1:
+#         # print(cconj)
+#         # clauses = re.split(f'\\s*({conj_pattern})\\s*', compound_sentence)
+#         clauses = sep_sentence(compound_sentence, cconj)
+#     else:
+#         for cc in cconj:
+#             clauses += (re.split(rf'\s*\b{str(cc)}\b\s*', compound_sentence))
+#             # print(clauses, cc)
+#     # clauses = re.split(f'\\s*({conj_pattern})\\s*', compound_sentence) ##เงื่อนไขคือถ้าประโยคทั้งสองมี SPO ของตัวเอง
+#     # clauses = re.split(rf'\\s*\\b({conj_pattern})\\b\\s*', compound_sentence)
+#     # clauses += (re.split(rf'\s*\b{str(cc)}\b\s*', compound_sentence))
+    
+#     filtered_sentences = [sentence for sentence in clauses if sentence.lower() not in cconj]
+#     # print(filtered_sentences, cconj)
+#     share_sp = ['', '', '']
+#     for sent in filtered_sentences:
+
+#         if 'nsubj' in [token.dep_ for token in nlp(sent)] or 'nsubjpass' in [token.dep_ for token in nlp(sent)]:
+#             # print(spo_extract)
+#             spo_extract.append(simple_sentence_extracting(sent))
+#             share_sp[0], share_sp[1] = spo_extract[-1][0], spo_extract[-1][1]
+#         elif 'nsubj' not in [token.dep_ for token in nlp(sent)] and 'nsubjpass' not in [token.dep_ for token in nlp(sent)]:
+#             share_sp[2] = sent
+#             spo_extract.append(simple_sentence_extracting(' '.join(share_sp)))
+#             # share_sp = ['', '']
+
+#     #กรณีที่เป็น cconj ของตัวอื่นที่ไม่ใช่ root เรา Recursive แม่ม
+#     return spo_extract
